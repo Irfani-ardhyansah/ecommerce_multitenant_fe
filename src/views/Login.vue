@@ -47,11 +47,15 @@ const form = reactive({
 const handleLogin = async () => {
   loading.value = true;
   try {
-    await auth.login(form);
-    
-    // Redirect berdasarkan lokasi domain
+    const response = await auth.login(form);
+    const userData = response.user;
+
     if (isTenant.value) {
-      router.push('/');
+      if (userData.role === 'admin') {
+        router.push('/admin/products'); // Jika admin ke manajemen produk
+      } else {
+        router.push('/'); // Jika user biasa ke katalog produk
+      }
     } else {
       router.push('/admin/central');
     }

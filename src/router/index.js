@@ -6,10 +6,20 @@ const routes = [
   { path: '/', component: () => import('../views/tenant/Katalog.vue') },
   { path: '/cart', component: () => import('../views/tenant/Cart.vue') },
   { 
+    path: '/admin/products', 
+    component: () => import('../views/tenant/ProductManagement.vue'),
+    meta: { requiresAuth: true } 
+  },
+  { 
     path: '/admin/central', 
     component: () => import('../views/central/Dashboard.vue'),
     meta: { requiresAuth: true, centralOnly: true }
   },
+  { 
+  path: '/admin/central/tenant', 
+  component: () => import('../views/central/TenantManagement.vue'),
+  meta: { requiresAuth: true, centralOnly: true } 
+},
 ];
 
 const router = createRouter({
@@ -19,16 +29,30 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore();
-  const isCentral = window.location.hostname === 'localhost';
+  const host = window.location.hostname;
+  const isCentral = host === 'localhost' || host === '127.0.0.1';
 
-  // Proteksi Central Admin
   if (to.meta.centralOnly && !isCentral) {
     return next('/');
   }
 
-  // Proteksi Auth
   if (to.meta.requiresAuth && !auth.token) {
     return next('/login');
+  }
+
+  if (to.path.startsWith('/admin/products')) {
+    if (auth.user?.role !== 'admin') {
+      alert("Akses Ditolak: Halaman ini hanya untuk Admin Toko.");
+      return next('/'); // Lempar ke katalog jika bukan admin
+    }
+  }
+
+  if (to.path === '/login' && auth.token) {
+    if (isCentral) {
+      return next('/admin/central');
+    } else {
+      return auth.user?.role === 'admin' ? next('/admin/products') : next('/');
+    }
   }
 
   next();

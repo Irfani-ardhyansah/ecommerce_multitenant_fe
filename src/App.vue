@@ -6,10 +6,10 @@
           
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black italic">
-              E-Commerce
+              E-Commerce 
             </div>
             <span class="font-black text-xl tracking-tight text-slate-800 uppercase">
-              {{ isTenant ? 'TenantStore' : 'CentralHub' }}
+              {{ isTenant ? ' Tenant Store' : ' Central Hub' }}
             </span>
           </div>
 
@@ -34,7 +34,7 @@
             <template v-if="auth.token">
               <div class="flex items-center gap-3 pr-4 border-r border-slate-200">
                 <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                  U
+                  
                 </div>
                 <span class="text-sm font-medium text-gray-600 hidden sm:inline">My Account</span>
               </div>
@@ -80,26 +80,3 @@ const handleLogout = () => {
   router.push('/login');
 };
 </script>
-
-<style scoped>
-.nav-link {
-  @apply text-gray-600 hover:text-blue-600 font-medium transition-colors duration-200;
-}
-.router-link-active {
-  @apply text-blue-600;
-}
-.btn-login {
-  @apply bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-blue-200 active:scale-95;
-}
-.btn-logout {
-  @apply text-slate-500 hover:text-red-500 text-sm font-bold transition-colors;
-}
-
-/* Page Transition */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-</style>

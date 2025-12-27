@@ -1,40 +1,47 @@
 <template>
-  <div class="p-8">
-    <h1 class="text-3xl font-bold mb-8">Super Admin Dashboard</h1>
-    
-    <div class="bg-gray-100 p-6 rounded-lg mb-8">
-      <h2 class="text-xl mb-4">Create New Tenant Store</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <input v-model="form.id" placeholder="Tenant ID (e.g. toko-budi)" class="p-2 border" />
-        <input v-model="form.domain" placeholder="Subdomain (e.g. tokobudi)" class="p-2 border" />
-        <input v-model="form.email" placeholder="Admin Email" class="p-2 border" />
-        <input v-model="form.password" type="password" placeholder="Password" class="p-2 border" />
+  <div class="space-y-8 p-6 bg-gray-50 min-h-screen">
+    <div class="flex justify-between items-center border-b-2 border-black pb-6">
+      <div>
+        <h1 class="text-4xl font-black uppercase tracking-tighter italic text-slate-900">Platform Analytics</h1>
+        <p class="text-sm font-mono text-slate-500">System Status: <span class="text-emerald-500 font-bold">● Operational</span></p>
       </div>
-      <button @click="submitTenant" class="mt-4 bg-green-500 text-white px-6 py-2 rounded">Create Store</button>
+      <div class="text-right">
+        <p class="text-xs font-bold text-slate-400 uppercase">Current Date</p>
+        <p class="font-bold">{{ new Date().toLocaleDateString('id-ID', { dateStyle: 'long' }) }}</p>
+      </div>
+      <router-link 
+        to="/admin/central/tenant" 
+        class="border-2 border-black px-4 py-1 text-sm font-bold bg-black text-white hover:bg-gray-800 transition-colors"
+      >
+        To Tenant Management
+      </router-link>
     </div>
 
-    <table class="w-full border-collapse border">
-      <thead>
-        <tr class="bg-gray-200">
-          <th class="border p-2">ID</th>
-          <th class="border p-2">Domain</th>
-          <th class="border p-2">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="t in tenantStore.tenants" :key="t.id">
-          <td class="border p-2">{{ t.id }}</td>
-          <td class="border p-2">
-            <a :href="'http://' + t.domains[0]?.domain + ':5173'" target="_blank" class="text-blue-500 underline">
-              {{ t.domains[0]?.domain }}
-            </a>
-          </td>
-          <td class="border p-2 text-center">
-            <button @click="tenantStore.deleteTenant(t.id)" class="text-red-500">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+        <div class="p-3 bg-blue-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-black uppercase text-slate-400">Total Tenants</p>
+          <p class="text-3xl font-black text-slate-900">{{ tenantStore.tenants.length }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+        <div class="p-3 bg-emerald-100 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-black uppercase text-slate-400">Databases Active</p>
+          <p class="text-3xl font-black text-slate-900">{{ tenantStore.tenants.length }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -46,12 +53,23 @@ const tenantStore = useTenantStore();
 const form = reactive({ id: '', domain: '', email: '', password: '' });
 
 const submitTenant = async () => {
+  if (!form.id || !form.domain || !form.email || !form.password) {
+    alert('Please fill all fields');
+    return;
+  }
+  
   try {
     await tenantStore.createTenant({ ...form });
-    alert('Store and Database Created Successfully!');
+    alert('SUCCESS: Infrastructure and Database Deployed.');
     Object.assign(form, { id: '', domain: '', email: '', password: '' });
   } catch (err) {
-    alert('Failed to create tenant');
+    alert('PROVISIONING FAILED: Check console for logs.');
+  }
+};
+
+const handleDelete = (id) => {
+  if (confirm(`CRITICAL ACTION: Terminate tenant "${id}"? This will drop the database.`)) {
+    tenantStore.deleteTenant(id);
   }
 };
 

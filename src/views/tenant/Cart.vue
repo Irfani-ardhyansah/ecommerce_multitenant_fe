@@ -1,53 +1,106 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6">Shopping Cart</h1>
+  <div class="max-w-5xl mx-auto p-6 space-y-8">
+    <header class="border-b border-slate-200 pb-6">
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Your Cart</h1>
+      <p class="text-slate-500">Review your items before proceeding to checkout.</p>
+    </header>
 
-    <div v-if="cartItems.length > 0" class="bg-white shadow-md rounded-lg overflow-hidden">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-gray-50 border-b">
-          <tr>
-            <th class="p-4 font-semibold text-gray-700">Product</th>
-            <th class="p-4 font-semibold text-gray-700 text-center">Quantity</th>
-            <th class="p-4 font-semibold text-gray-700">Price</th>
-            <th class="p-4 font-semibold text-gray-700">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in cartItems" :key="item.id" class="border-b hover:bg-gray-50">
-            <td class="p-4">
-              <div class="font-bold text-gray-800">{{ item.product.name }}</div>
-              <div class="text-sm text-gray-500">Stock: {{ item.product.stock }}</div>
-            </td>
-            <td class="p-4 text-center">
-              <div class="flex items-center justify-center space-x-3">
-                <button @click="updateQty(item, -1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
-                <span class="font-medium">{{ item.quantity }}</span>
-                <button @click="updateQty(item, 1)" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
-              </div>
-            </td>
-            <td class="p-4 text-blue-600 font-bold">
+    <div v-if="cartItems.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 space-y-4">
+        <div v-for="item in cartItems" :key="item.id" class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between gap-4 hover:border-blue-200 transition-colors">
+          <div class="flex-1">
+            <h3 class="font-bold text-slate-800 text-lg">{{ item.product.name }}</h3>
+            <div class="text-xs text-slate-400 mt-1">
+              Unit Price: <span class="font-bold text-slate-600">Rp {{ item.product.price.toLocaleString() }}</span>
+            </div>
+            <div class="text-[10px] text-orange-500 font-black uppercase mt-1">
+              Stock Available: {{ item.product.stock }}
+            </div>
+          </div>
+
+          <div class="flex items-center bg-slate-100 rounded-lg p-1">
+            <button @click="updateQty(item, -1)" class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md transition-colors text-slate-600">-</button>
+              <span class="w-10 text-center font-bold text-slate-800 text-sm">{{ item.quantity }}</span>
+            <button @click="updateQty(item, 1)" class="w-8 h-8 flex items-center justify-center hover:bg-white rounded-md transition-colors text-slate-600">+</button>
+          </div>
+
+          <div class="text-right min-w-[120px]">
+            <span class="text-[10px] font-bold text-slate-300 uppercase block">Subtotal</span>
+            <p class="font-black text-blue-600 text-base">
               Rp {{ (item.product.price * item.quantity).toLocaleString() }}
-            </td>
-            <td class="p-4">
-              <button @click="removeItem(item.id)" class="text-red-500 hover:text-red-700 font-medium">Remove</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </p>
+            <button @click="removeItem(item.id)" class="text-[10px] text-red-400 font-bold hover:text-red-600 uppercase mt-1">
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1">
+        <div class="bg-slate-900 text-white rounded-3xl p-8 sticky top-24 shadow-2xl shadow-blue-100">
+          <h2 class="text-xl font-black mb-6 border-b border-slate-700 pb-4">Order Summary</h2>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between text-slate-400 text-sm">
+              <span>Total Items</span>
+              <span class="text-white font-bold">{{ totalQuantity }}</span>
+            </div>
+            <div class="flex justify-between text-slate-400 text-sm">
+              <span>Subtotal Cost</span>
+              <span class="text-white font-bold">Rp {{ totalPrice.toLocaleString() }}</span>
+            </div>
+            <div class="flex justify-between text-slate-400 text-sm">
+              <span>Tax (0%)</span>
+              <span class="text-white font-bold">Rp 0</span>
+            </div>
+            
+            <div class="pt-6 border-t border-slate-700 mt-6">
+              <div class="flex justify-between items-end">
+                <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">Grand Total</span>
+                <span class="text-2xl font-black text-blue-400">Rp {{ totalPrice.toLocaleString() }}</span>
+              </div>
+            </div>
+
+            <button @click="handleCheckout" class="w-full mt-8 bg-blue-500 hover:bg-blue-400 text-white py-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-lg shadow-blue-500/20 uppercase tracking-widest">
+              Proceed to Checkout
+            </button>
+            
+            <router-link to="/" class="block text-center mt-4 text-xs text-slate-500 hover:text-white transition-colors">
+              Continue Shopping
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div v-else class="text-center py-20 bg-gray-100 rounded-lg">
-      <p class="text-gray-500 text-xl">Your cart is empty.</p>
-      <router-link to="/" class="text-blue-500 underline mt-4 inline-block">Back to Shopping</router-link>
+    <div v-else class="text-center py-24 bg-white border border-dashed border-slate-300 rounded-3xl">
+
+      <h2 class="text-xl font-bold text-slate-800">Your cart is empty</h2>
+      <p class="text-slate-500 mt-2 mb-8">Looks like you haven't added anything yet.</p>
+      <router-link to="/" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-600 transition-all">
+        Start Shopping
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import api from '../../api/axios';
 
 const cartItems = ref([]);
+
+// Kalkulasi Total Harga (Grand Total)
+const totalPrice = computed(() => {
+  return cartItems.value.reduce((acc, item) => {
+    return acc + (item.product.price * item.quantity);
+  }, 0);
+});
+
+// Kalkulasi Total Jumlah Barang
+const totalQuantity = computed(() => {
+  return cartItems.value.reduce((acc, item) => acc + item.quantity, 0);
+});
 
 const fetchCart = async () => {
   try {
@@ -60,25 +113,33 @@ const fetchCart = async () => {
 
 const updateQty = async (item, change) => {
   const newQty = item.quantity + change;
-  if (newQty < 1) return;
+
+  if (newQty < 1) {
+    await removeItem(item.id);
+    return;
+  }
 
   try {
-    // Menembak endpoint PUT /api/cart/{itemId}
     await api.put(`/cart/${item.id}`, { quantity: newQty });
-    await fetchCart(); // Refresh data untuk sinkronisasi stok
+    await fetchCart();
   } catch (err) {
     alert(err.response?.data?.message || "Action failed");
   }
 };
 
 const removeItem = async (itemId) => {
-  if (!confirm("Remove this item?")) return;
+  if (!confirm("Remove this item from your cart?")) return;
   try {
     await api.delete(`/cart/${itemId}`);
     await fetchCart();
   } catch (err) {
     alert("Failed to remove item");
   }
+};
+
+const handleCheckout = () => {
+  alert("Checkout functionality would be implemented next. Total to pay: Rp " + totalPrice.value.toLocaleString());
+  // Di sini biasanya Anda memanggil API POST /api/orders
 };
 
 onMounted(fetchCart);
